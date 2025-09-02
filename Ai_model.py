@@ -6,7 +6,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import BatchNormalization
 from sklearn.utils.class_weight import compute_class_weight
 import numpy as np
-import cv2  # OpenCV para processamento de imagens (ex: visualização)
+import cv2  
 import matplotlib.pyplot as plt
 import os
 
@@ -104,3 +104,4 @@ plt.plot(history.history['val_loss'], label='Val Loss')
 plt.legend()
 
 plt.show()
+
