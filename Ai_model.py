@@ -10,21 +10,20 @@ import cv2  # OpenCV para processamento de imagens (ex: visualização)
 import matplotlib.pyplot as plt
 import os
 
-# Configurações
-IMG_SIZE = 48  # Tamanho das imagens no FER2013
+#config 
+IMG_SIZE = 48  # Tamanho das imagens 
 BATCH_SIZE = 64
-EPOCHS = 20  # Ajuste conforme sua máquina
-NUM_CLASSES = 7  # Emoções: angry, disgust, fear, happy, neutral, sad, surprise
+EPOCHS = 20  
+NUM_CLASSES = 7  # Emoções sõ 7 classes, caso adicione um nova classe mudar o numero
 
-# Caminhos do dataset (ajuste para o seu diretório)
-train_dir = 'images/train/'  # Pasta com subpastas de emoções
-test_dir = 'images/test/'    # Pasta de teste
 
-# Verifica se as pastas existem
+train_dir = 'images/train/' 
+test_dir = 'images/test/'   
+
 if not os.path.exists(train_dir):
     raise ValueError("Baixe e extraia o dataset FER2013 em 'fer2013/'")
 
-# Data Augmentation e Geradores (usando Keras para carregar imagens)
+
 
 train_datagen = ImageDataGenerator(
     rescale=1./255,
@@ -34,17 +33,17 @@ train_datagen = ImageDataGenerator(
     shear_range=0.2,
     zoom_range=0.2,
     horizontal_flip=True,
-    brightness_range=[0.8, 1.2],  # Novo: varia brilho
-    channel_shift_range=0.2,      # Novo: shift em canais (mesmo grayscale)
+    brightness_range=[0.8, 1.2], 
+    channel_shift_range=0.2,      
     fill_mode='nearest'
 )
 
 train_generator = train_datagen.flow_from_directory(
     train_dir,
     target_size=(IMG_SIZE, IMG_SIZE),
-    color_mode='grayscale',  # Imagens em cinza
+    color_mode='grayscale',  
     batch_size=BATCH_SIZE,
-    class_mode='categorical'  # One-hot encoding para 7 classes
+    class_mode='categorical'  
 )
 
 test_generator = train_datagen.flow_from_directory(
@@ -56,7 +55,6 @@ test_generator = train_datagen.flow_from_directory(
 )
 
 
-# Construção do Modelo CNN com Keras
 model = Sequential([
     Conv2D(32, (3, 3), activation='relu', input_shape=(IMG_SIZE, IMG_SIZE, 1)),
     BatchNormalization(),  # Novo
@@ -75,27 +73,27 @@ model = Sequential([
     Dropout(0.5),
     Dense(NUM_CLASSES, activation='softmax')
 ])
-# Compilação
+
 model.compile(optimizer=Adam(learning_rate=0.001),
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
-model.summary()  # Mostra a arquitetura
+model.summary()  
 
-# Treinamento
+
 history = model.fit(
     train_generator,
     steps_per_epoch=train_generator.samples // BATCH_SIZE,  # ~448
-    epochs=50,  # Aumente para mais aprendizado
+    epochs=50,  
     validation_data=test_generator,
     validation_steps=test_generator.samples // BATCH_SIZE  # ~112
 )
 
-# Salva o modelo treinado
+
 model.save('emotion_model.h5')
 print("Modelo salvo como 'emotion_model.h5'")
 
-# Plot de Acurácia e Loss (opcional)
+
 plt.plot(history.history['accuracy'], label='Train Accuracy')
 plt.plot(history.history['val_accuracy'], label='Val Accuracy')
 plt.legend()
@@ -104,4 +102,5 @@ plt.show()
 plt.plot(history.history['loss'], label='Train Loss')
 plt.plot(history.history['val_loss'], label='Val Loss')
 plt.legend()
+
 plt.show()
